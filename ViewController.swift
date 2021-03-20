@@ -65,10 +65,6 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     var cardExpDict = [String:Int]()
     var cardExpPass = 0
     
-    @IBOutlet weak var nameLabel: UILabel!
-    @IBOutlet weak var setLabel: UILabel!
-    @IBOutlet weak var numberLabel: UILabel!
-    
     // MARK: - Vision
     
     lazy var textDetectionRequest: VNRecognizeTextRequest = {
@@ -151,12 +147,6 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
     func processImage()
     {
-        DispatchQueue.main.async {
-            self.nameLabel.text = ""
-            self.setLabel.text = ""
-            self.numberLabel.text = ""
-        }
-        
         guard let image = image, let cgImage = image.cgImage else { return }
         
         let requests = [textDetectionRequest]
