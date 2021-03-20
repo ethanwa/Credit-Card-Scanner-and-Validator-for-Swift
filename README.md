@@ -9,6 +9,12 @@ This is a very early 0.1 development version.
 
 It's very simple to use this ViewController.swift file to demo how the code works. You can then modify it as needed. Simply connect a button to `@IBAction func takePhoto` (to use the live camera), run the app and touch the button, and hold up the credit card side showing the numbers to the camera view. In the Xcode console you will see a valid credit card number and expiration date (if it can find one). You can then modify the code to do what you wish with that information.
 
+## Why did I make this?
+
+I have noticed more and more lately apps on the App Store, including Apple's own Wallet app, uses card scanning to automatically pull credit/debit numbers and populate them into fields. This makes entering payment information a lot easier and faster for customers in apps and/or cards that don't or can't use Apple Pay. Afterall, the faster the checkout, the more likely you will win that sale, right?
+
+I don't have an app to use this code in personally, but I was intrigued to see if I could build something better and faster than what a lot of these other apps use. Even Apple's Wallet CC reader is frustratingly slow (and sometimes doesn't work at all) with credit cards that have the numbers in vertical blocks and not in a horizontal line (like the Capitol One Venture card I have), or not being able to get the Exp Date 50% of the time. So I built this, and I think it is better performing, and I'd like to share the code with the world to use as they wish. I'm hoping that this side project over time will become useful to people and businesses, and that I can continue to improve it here on GitHub.
+
 ## Options
 
 * If you want to increase the speed of detection, or decrease the speed but improve accuracy, you can adjust how many positive detections of the same number are needed before being given a positive passing result. Do this by adjusting the `ccPassLoops` and `expPassLoops` variables at the beginning of the file.
@@ -25,4 +31,8 @@ It's very simple to use this ViewController.swift file to demo how the code work
 
 * This code will not work with cards that have a full 4-digit year as an Exp Date (i.e. it won't find 04/2027). This is something that can be added fairly easily. I am sure there are some cards out there that have the full year (some Amex cards if I remember correctly).
 
+* This code will not pull the name off of the card yet.
+
 * There are some no-no's I do in the code that I hacked in just to get things up and running as quick as possible, the major one being I force cast a lot. This is just clean-up that needs to be done. The code should run fine without crashing though... I hope.
+
+
