@@ -1,3 +1,7 @@
+[![Language: Swift 5](https://img.shields.io/badge/language-Swift5-orange?style=flat&logo=swift)](https://developer.apple.com/swift)
+![Platform: iOS 13+](https://img.shields.io/badge/platform-iOS%2013%2B-blue?style=flat&logo=apple)
+[![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey?style=flat)](https://github.com/ethanwa/credit-card-scanner-and-validator/blob/main/LICENSE)
+
 # Credit and Debit Card Scanner and Validator
 Requires iOS 13 or above.
 
