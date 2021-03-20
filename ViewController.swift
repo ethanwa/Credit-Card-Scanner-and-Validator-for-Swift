@@ -1,18 +1,18 @@
 /*
  MIT License
-
+ 
  Copyright (c) 2021 Ethan C. Allen (ethanwa on GitHub)
-
+ 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
-
+ 
  The above copyright notice and this permission notice shall be included in all
  copies or substantial portions of the Software.
-
+ 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -29,9 +29,15 @@ import AVFoundation
 
 class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
     
+    // Higher for accuracy, lower for speed
+    let ccPassLoops = 3
+    let expPassLoops = 3
+    
+    
+    // Prefix : Card Length
     let cardTypes = [
         
-        // Including related/partner brands: Dankort, Electron, etc. Note: majority of Visa cards are 16 digits, few old Visa cards may have 13 digits, and Visa is introducing 19 digits cards
+        // Visa - Including related/partner brands: Dankort, Electron, etc. Note: majority of Visa cards are 16 digits, few old Visa cards may have 13 digits, and Visa is introducing 19 digits cards
         "4" : "16-19",
         
         // Mastercard
@@ -41,7 +47,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         // American Express
         "34" : "15",
         "37" : "15",
-
+        
         // Discover
         "6011" : "16-19",
         "622126-622925" : "16-19",
@@ -49,9 +55,9 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         "628200-628899" : "16-19",
         "64" : "16-19",
         "65" : "16-19"
-    
+        
     ]
-
+    
     // MARK: - Standard Variables
     
     let year = Calendar.current.component(.year, from: Date())
@@ -210,7 +216,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
             else
             {
                 for card in self.allCardTypes {
-
+                    
                     let start = Int(Array(card.keys)[0])!
                     let length = Int(Array(card.values)[0])!
                     
@@ -331,7 +337,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
                 self.cardNumberDict[cardCheck] = 0
             }
             
-            if self.cardNumberDict[cardCheck]! > 3
+            if self.cardNumberDict[cardCheck]! > self.ccPassLoops
             {
                 print("PASSED: ", cardCheck)
                 
@@ -387,21 +393,21 @@ extension String {
     func regex (pattern: String) -> [String] {
         do {
             let regex = try NSRegularExpression(pattern: pattern, options: NSRegularExpression.Options(rawValue: 0))
-          let nsstr = self as NSString
-          let all = NSRange(location: 0, length: nsstr.length)
-          var matches : [String] = [String]()
+            let nsstr = self as NSString
+            let all = NSRange(location: 0, length: nsstr.length)
+            var matches : [String] = [String]()
             regex.enumerateMatches(in: self, options: NSRegularExpression.MatchingOptions(rawValue: 0), range: all) {
-            (result : NSTextCheckingResult?, _, _) in
-            if let r = result {
-                let result = nsstr.substring(with: r.range) as String
-              matches.append(result)
+                (result : NSTextCheckingResult?, _, _) in
+                if let r = result {
+                    let result = nsstr.substring(with: r.range) as String
+                    matches.append(result)
+                }
             }
-          }
-          return matches
+            return matches
         } catch {
-          return [String]()
+            return [String]()
         }
-      }
+    }
     
     func indexInt(of char: Character) -> Int? {
         return firstIndex(of: char)?.utf16Offset(in: self)
