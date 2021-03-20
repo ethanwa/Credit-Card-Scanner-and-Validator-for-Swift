@@ -17,6 +17,8 @@ It's very simple to use this ViewController.swift file to demo how the code work
 
 I have noticed lately that many apps on the App Store, including Apple's own Wallet app, now use card scanning to automatically pull credit/debit numbers from a live camera view and populate them into fields. This makes entering payment information a lot easier and faster for customers in apps that don't or can't use Apple Pay. Afterall, the faster the checkout, the more likely you will win that sale, right?
 
+There are also a few other projects here on GitHub that are nice, but they dont have the accuracy for various card numbering formats, nor the validation for worldwide use, to truely be something an international company could depend on. Their code is cleaner than mine though, if that matters. ;)
+
 I don't have an app to use this code in personally, but I was intrigued to see if I could build something better and faster than what a lot of these other apps use. Even Apple's Wallet CC reader is frustratingly slow (and sometimes doesn't work at all) with credit cards that have the numbers in vertical blocks and not in a horizontal line (like the Capitol One Venture card I have), or not being able to get the Exp Date 50% of the time. So I built this, and I think it is better performing, and I'd like to share the code with the world and you to use as you wish. I'm hoping that this side project over time will become useful to people and businesses, and that I can continue to improve it here on GitHub.
 
 ## Options
