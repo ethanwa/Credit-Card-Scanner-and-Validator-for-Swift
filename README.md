@@ -13,7 +13,7 @@ This is a very early 0.2 development version.
 
 It's very simple to use. Add the `CCScannerDelegate` to your UIViewController, initialize the CCScanner class, set the delegate, and start the scanner. The delegate method will be called returning you the card information. 
 
-Just see the following code:
+Here's an extremely easy example to follow:
 
 ```
 import UIKit
