@@ -7,11 +7,43 @@ Requires iOS 13 or above.
 
 Uses the iOS Vision text recognizer framework to visually read credit and debit card numbers and expiration dates. During the recognition process, it uses the Luhn algorithm to make sure the CC number is valid. It also checks agains a list of prefix numbers to determine card type (Mastercard, Visa, Discover, Amex, etc).
 
-This is a very early 0.1 development version.
+This is a very early 0.2 development version.
 
 ## How to Use
 
-It's very simple to use this ViewController.swift file to demo how the code works. You can then modify it as needed. Simply connect a button to `@IBAction func takePhoto` (to use the live camera), run the app and touch the button, and hold up the credit card side showing the numbers to the camera view. In the Xcode console you will see a valid credit card number and expiration date (if it can find one). You can then modify the code to do what you wish with that information.
+It's very simple to use. Add the `CCScannerDelegate` to your UIViewController, initialize the CCScanner class, set the delegate, and start the scanner. The delegate method will be called returning you the card information. 
+
+Just see the following code:
+
+```
+import UIKit
+
+class ViewController: UIViewController, CCScannerDelegate {
+    
+    @IBOutlet var lblCardNumber: UILabel!
+    @IBOutlet var lblCardExp: UILabel!
+    
+    let ccScanner = CCScanner()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+    }
+    
+    @IBAction func startButton() {
+        self.ccScanner.delegate = self
+        self.ccScanner.startScanner(viewController: self)
+    }
+    
+    func ccScannerCompleted(cardNumber: String, expDate: String, cardType: String) {
+        
+        // UI changes need to be on the main thread
+        DispatchQueue.main.async {
+            self.lblCardNumber.text = cardNumber
+            self.lblCardExp.text = expDate
+        }
+    }
+}
+```
 
 ## Why did I make this?
 
