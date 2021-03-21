@@ -27,10 +27,10 @@ class ViewController: UIViewController, CCScannerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.ccScanner.delegate = self
     }
     
     @IBAction func startButton() {
-        self.ccScanner.delegate = self
         self.ccScanner.startScanner(viewController: self)
     }
     
