@@ -55,9 +55,9 @@ I don't have an app to use this code in personally, but I was intrigued to see i
 
 ## Options
 
-* If you want to increase the speed of detection, or decrease the speed but improve accuracy, you can adjust how many positive detections of the same number are needed before being given a positive passing result. Do this by adjusting the `ccPassLoops` and `expPassLoops` variables at the beginning of the file.
+* If you want to increase the speed of detection, or decrease the speed but improve accuracy, you can adjust how many positive detections of the same number are needed before being given a positive passing result. Do this by adjusting the `ccPassLoops` and `expPassLoops` variables at the beginning of the CCScanner file.
 
-* If you'd like to add more credit card types from around the world, you can do so by modifying the `cardTypes` variable. You can put ranges of numbers to check against. These numbers must follow the Luhn algorithm for verifying check digits. Over time I will be adding all of the major worldwide card issuers.
+* If you'd like to add more credit card types from around the world, you can do so by modifying the `cardTypes` variable in CCScanner. You can put ranges of numbers to check against. These numbers must follow the Luhn algorithm for verifying check digits. Over time I will be adding all of the major worldwide card issuers.
 
 ## Current Known Limitations, Issues, and Extra Details
 
@@ -71,6 +71,6 @@ I don't have an app to use this code in personally, but I was intrigued to see i
 
 * This code will not pull the name off of the card yet.
 
+* This code will not pull the CVV off of the card yet.
+
 * There are some no-no's I do in the code that I hacked in just to get things up and running as quick as possible, the major one being I force cast a lot. This is just clean-up that needs to be done. The code should run fine without crashing though... I hope.
-
-
