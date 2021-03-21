@@ -20,9 +20,6 @@ import UIKit
 
 class ViewController: UIViewController, CCScannerDelegate {
     
-    @IBOutlet var lblCardNumber: UILabel!
-    @IBOutlet var lblCardExp: UILabel!
-    
     let ccScanner = CCScanner()
     
     override func viewDidLoad() {
@@ -36,11 +33,8 @@ class ViewController: UIViewController, CCScannerDelegate {
     
     func ccScannerCompleted(cardNumber: String, expDate: String, cardType: String) {
         
-        // UI changes need to be on the main thread
-        DispatchQueue.main.async {
-            self.lblCardNumber.text = cardNumber
-            self.lblCardExp.text = expDate
-        }
+        // do something with the data
+        print(cardNumber, expDate)
     }
 }
 ```
