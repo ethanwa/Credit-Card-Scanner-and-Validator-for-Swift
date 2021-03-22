@@ -83,7 +83,7 @@ I don't have an app to use this code in personally, but I was intrigued to see i
 .custom                   // Custom Card (see below)
 ```
 
-* You can also add custom cards. For example, if you're Target and you want to add Red Card Debit scanning, you'd simply add the following code. The `binRange` variable is the first six digits of your card (called a IIN or BIN, see [Wikipedia])(https://en.wikipedia.org/wiki/Payment_card_number). You can use anywhere between one and six sigits. The `lengthRange` variable is for card number length. **Note:** All custom card numbering schemes must follow the [Luhn algorithm](https://en.wikipedia.org/wiki/Luhn_algorithm).
+* You can also add custom cards. For example, if you're Target and you want to add Red Card Debit scanning, you'd simply add the following code. The `binRange` variable is the first six digits of your card (called a IIN or BIN, see [Wikipedia](https://en.wikipedia.org/wiki/Payment_card_number)). You can use anywhere between one and six sigits. The `lengthRange` variable is for card number length. **Note:** All custom card numbering schemes must follow the [Luhn algorithm](https://en.wikipedia.org/wiki/Luhn_algorithm).
 
 ```
 let targetCard = self.ccScanner.createCardType.new(binRange: "639463", lengthRange: "16")
