@@ -43,13 +43,13 @@ class ViewController: UIViewController, CCScannerDelegate {
     @IBAction func startButton() {
         
         // OPTIONAL: You can add custom cards for your company. Here is an example for Target
-        let targetCardRangeOne = self.ccScanner.createCardType.new(binRange: "639463",
+        let targetCard = self.ccScanner.createCardType.new(binRange: "639463",
                                                            lengthRange: "16")
         
-        let targetCardRangeTwo = self.ccScanner.createCardType.new(binRange: "0023-0024",
-                                                           lengthRange: "12-13")
+        let amazonCard = self.ccScanner.createCardType.new(binRange: "604578",
+                                                           lengthRange: "16")
         
-        self.ccScanner.addCustomCards(cards: [targetCardRangeOne, targetCardRangeTwo])
+        self.ccScanner.addCustomCards(cards: [targetCard, amazonCard])
         
         // OPTIONAL: The more you narrow down your search, the faster you'll get results. Default is .all
         self.ccScanner.cards = [.visa,
