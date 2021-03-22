@@ -47,11 +47,41 @@ There are also a few other projects here on GitHub that are nice, but they dont 
 
 I don't have an app to use this code in personally, but I was intrigued to see if I could build something better and faster than what a lot of these other apps use. Even Apple's Wallet CC reader is frustratingly slow (and sometimes doesn't work at all) with credit cards that have the numbers in vertical blocks and not in a horizontal line (like the Capitol One Venture card I have), or not being able to get the Exp Date 50% of the time. So I built this, and I think it is better performing, and I'd like to share the code with the world and you to use as you wish. I'm hoping that this side project over time will become useful to people and businesses, and that I can continue to improve it here on GitHub.
 
-## Options
+## Optional Settings
 
-* If you want to increase the speed of detection, or decrease the speed but improve accuracy, you can adjust how many positive detections of the same number are needed before being given a positive passing result. Do this by adjusting the `ccPassLoops` and `expPassLoops` variables at the beginning of the CCScanner file.
+* `self.ccScanner.recognitionLevel = .normal` is default. You can increase speed or accurancy with:
 
-* If you'd like to add more credit card types from around the world, you can do so by modifying the `cardTypes` variable in CCScanner. You can put ranges of numbers to check against. These numbers must follow the Luhn algorithm for verifying check digits. Over time I will be adding all of the major worldwide card issuers.
+```
+.fastest
+.fast
+.normal (default)
+.accurate
+.veryaccurate
+```
+
+* `self.ccScanner.cards = [.all]` is default. You can only allow certain cards for your business. For example, if you are in the USA and only accept Visa and Mastercard, the code would look like `self.ccScanner.cards = [.visa, .mastercard]`. Here are all of the avaiable card options:
+
+```
+.all (default)
+.noneExceptCustom
+.visa // Visa
+.mastercard // Mastercard
+.americanExpress // American Express
+.discover // Discover
+.chinaTUnion // China T-Union
+.chinaUnionPay // China Union Pay
+.dinersClubInternational // Diners Club International
+.interPayment // Interpayment
+.jcb // JCB
+.maestroUK // Maestro UK
+.maestro // Maestro
+.dankort // Dankort
+.mir // MIR
+.npsPridnestrovie // NPS Pridnestrovie
+.troy // Troy
+.utap // UTAP
+.custom // Custom Card (see below)
+```
 
 ## Current Known Limitations, Issues, and Extra Details
 
