@@ -22,6 +22,7 @@
  SOFTWARE.
  */
 
+import Foundation
 import UIKit
 import Vision
 import Photos
@@ -31,67 +32,218 @@ protocol CCScannerDelegate: UIViewController {
     func ccScannerCompleted(cardNumber: String, expDate: String, cardType: String)
 }
 
-class CCScanner: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
+class CCScanner: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
     
     var delegate: CCScannerDelegate?
+    var createCardType = Card()
+    var cards = [CardType.all]
+    var recognitionLevel: RecognitionLevel?
     
-    // TODO: add options
-    //var accuracyLevel = 0
-    //var cards = ["Visa", "Mastercard"]
-    
-    // Higher for accuracy, lower for speed
-    private let ccPassLoops = 3
-    private let expPassLoops = 3
-
-    // Prefix : Card Length
     private let cardTypes = [
         
-        // Visa - Including related/partner brands: Dankort, Electron, etc. Note: majority of Visa cards are 16 digits, few old Visa cards may have 13 digits, and Visa is introducing 19 digits cards
-        "4" : "16-19",
+        CardType.visa:
+            ["4" : "16-19"],
         
-        // Mastercard
-        "51-55" : "16",
-        "2221-2720" : "16",
+        CardType.mastercard:
+            ["51-55" : "16",
+             "2221-2720" : "16"],
         
-        // American Express
-        "34" : "15",
-        "37" : "15",
+        CardType.americanExpress:
+            ["34" : "15",
+             "37" : "15"],
         
-        // Discover
-        "6011" : "16-19",
-        "622126-622925" : "16-19",
-        "624000-626999" : "16-19",
-        "628200-628899" : "16-19",
-        "64" : "16-19",
-        "65" : "16-19"
+        CardType.discover:
+            ["6011" : "16-19",
+             "622126-622925" : "16-19",
+             "644-649" : "16-19",
+             "65" : "16-19"],
         
+        CardType.chinaTUnion:
+            ["31" : "19"],
+        
+        CardType.chinaUnionPay:
+            ["62" : "16-19"],
+        
+        CardType.dinersClubInternational:
+            ["36" : "14-19"],
+        
+        
+        // TODO: Missing UkrCard
+        
+        // TODO: RuPay
+        /*
+         "60" : "15",
+         "6521-6522" : "16",
+         */
+        
+        // InterPayment
+        CardType.interPayment: ["636" : "16-19"],
+        
+        // JCB
+        CardType.jcb: ["3528-3589" : "16-19"],
+        
+        // Maestro UK
+        CardType.maestroUK: ["6759" : "16-19",
+                               "676770" : "12-19",
+                               "676774" : "12-19"],
+        
+        // Maestro
+        CardType.maestro: ["5018" : "12-19",
+                             "5020" : "12-19",
+                             "5038" : "12-19",
+                             "5893" : "12-19",
+                             "6304" : "12-19",
+                             "6759" : "12-19",
+                             "6761" : "12-19",
+                             "6762" : "12-19",
+                             "6763" : "12-19"],
+        
+        // Dankort
+        CardType.dankort: ["5019" : "16"],
+        
+        // MIR
+        CardType.mir: ["2200-2204" : "16"],
+        
+        // NPS Pridnestrovie
+        CardType.npsPridnestrovie: ["6054740-6054744" : "16"],
+        
+        // TODO: Troy
+        // "6-9" : "16",
+        
+        // UTAP
+        CardType.utap: ["1" : "15"]
+        
+        // UNKNOWN VALIDATION
+        // Verve, LankaPay
     ]
+    
+    enum CardType: String {
+        case all
+        case noneExceptCustom
+        
+        case visa = "Visa"
+        case mastercard = "Mastercard"
+        case americanExpress = "American Express"
+        case discover = "Discover"
+        case chinaTUnion = "China T-Union"
+        case chinaUnionPay = "China Union Pay"
+        case dinersClubInternational = "Diners Club International"
+        //case ukrCard = "UkrCard"
+        //case ruPay = "RuPay"
+        case interPayment = "Interpayment"
+        case jcb = "JCB"
+        case maestroUK = "Maestro UK"
+        case maestro = "Maestro"
+        case dankort = "Dankort"
+        case mir = "MIR"
+        case npsPridnestrovie = "NPS Pridnestrovie"
+        //case troy = "Troy"
+        case utap = "UTAP"
+        case custom = "Custom Card"
+    }
+    
+    enum RecognitionLevel {
+        case fastest
+        case fast
+        case normal
+        case accurate
+        case veryaccurate
+    }
+    
+    struct Card {
+        var binRange = ""
+        var lengthRange = ""
+        
+        mutating func new(binRange: String, lengthRange: String) -> Card {
+            self.binRange = binRange
+            self.lengthRange = lengthRange
+            
+            return self
+        }
+    }
     
     // MARK: - Standard Variables
     
     private let year = Calendar.current.component(.year, from: Date())
+    private var usedCards = [CardType: [String: String]]()
     private var recognizedText = ""
     private var finalText = ""
     private var image: UIImage?
     private var processing = false
     private var findExp = false
-    private var allCardTypes = [[String:String]]()
     private var cardNumberDict = [String:Int]()
     private var cardExpDict = [String:Int]()
     private var cardExpPass = 0
-    private var viewController = UIViewController()
-    
+    private var nagivationCont = UINavigationController()
+    private var foundType: CardType?
     private var finalCardNumber = ""
     private var finalExpDate = ""
-    private var finalCardType = ""
     private var finalName = ""
+    private var ccPassLoops = 3
+    private var expPassLoops = 3
+    private var customCards = [String: String]()
+    
+    // MARK: - Card() Setup
+    
+    func addCustomCards(cards: Array<Card>) {
+        for card in cards {
+            self.customCards[card.binRange] = card.lengthRange
+        }
+    }
+    
+    func setupCardOptions() {
+        self.ccPassLoops = 3
+        self.expPassLoops = 4
+        
+        switch recognitionLevel {
+        case .veryaccurate:
+            self.ccPassLoops += 2
+            self.expPassLoops += 2
+            break
+        case .accurate:
+            self.ccPassLoops += 1
+            self.expPassLoops += 1
+            break
+        case .normal:
+            break
+        case .fast:
+            self.ccPassLoops -= 1
+            self.expPassLoops -= 1
+            break
+        case .fastest:
+            self.ccPassLoops -= 2
+            self.expPassLoops -= 2
+            break
+
+        default:
+            break
+        }
+        
+        done: for card in cards {
+            if card == .all {
+                self.usedCards = self.cardTypes
+                self.usedCards[CardType.custom] = self.customCards
+                break done
+            } else if card == .noneExceptCustom {
+                self.usedCards.removeAll()
+                self.usedCards[CardType.custom] = self.customCards
+                break done
+            } else if card == .custom {
+                self.usedCards[CardType.custom] = self.customCards
+            } else {
+                self.usedCards[card] = self.cardTypes[card]
+            }
+        }
+        
+        
+    }
     
     // MARK: - Vision
         
     private lazy var textDetectionRequest: VNRecognizeTextRequest = {
         let request = VNRecognizeTextRequest(completionHandler: self.handleDetectedText)
         request.recognitionLevel = .accurate
-        request.minimumTextHeight = 0.02
+        request.minimumTextHeight = 0.020
         request.usesLanguageCorrection = false
         return request
     }()
@@ -99,40 +251,67 @@ class CCScanner: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     private let disQueue = DispatchQueue(label: "my.image.handling.queue")
     private var captureSession: AVCaptureSession?
     private lazy var previewLayer = AVCaptureVideoPreviewLayer()
-
+    
     func startScanner(viewController: UIViewController)
     {
+        self.setupCardOptions()
+        
         self.captureSession = AVCaptureSession()
         let preview = AVCaptureVideoPreviewLayer(session: self.captureSession!)
         preview.videoGravity = .resizeAspect
         self.previewLayer = preview
         
-        self.viewController = viewController
+        let screenSize = UIScreen.main.bounds
+        let cardLayer = CAShapeLayer()
+        cardLayer.frame = screenSize
+        self.previewLayer.insertSublayer(cardLayer, above: self.previewLayer)
         
-        for card in cardTypes {
-            let cardNums = self.getCardDict(stringRange: card.key)
-            let cardLengths = self.getCardDict(stringRange: card.value)
-            
-            for num in cardNums {
-                for len in cardLengths {
-                    self.allCardTypes.append([num : len])
-                }
-            }
+        let cardWidth = 350.0 as CGFloat
+        let cardHeight = 225.0 as CGFloat
+        let cardXlocation = (screenSize.width - cardWidth) / 2
+        let cardYlocation = (screenSize.height / 2) - (cardHeight / 2) - (screenSize.height * 0.05)
+        let path = UIBezierPath(roundedRect: CGRect(
+                                    x: cardXlocation, y: cardYlocation, width: cardWidth, height: cardHeight),
+                                cornerRadius: 10.0)
+        cardLayer.path = path.cgPath
+        cardLayer.strokeColor = UIColor.white.cgColor
+        cardLayer.lineWidth = 8.0
+        cardLayer.backgroundColor = UIColor.black.withAlphaComponent(0.7).cgColor
+        
+        let mask = CALayer()
+        mask.frame = cardLayer.bounds
+        cardLayer.mask = mask
+        
+        let r = UIGraphicsImageRenderer(size: mask.bounds.size)
+        let im = r.image { ctx in
+            UIColor.black.setFill()
+            ctx.fill(mask.bounds)
+            path.addClip()
+            ctx.cgContext.clear(mask.bounds)
         }
-        
-        self.viewController.viewDidLayoutSubviews()
-        self.previewLayer.frame = self.viewController.view.bounds
+        mask.contents = im.cgImage
+
+        self.previewLayer.frame = screenSize
 
         self.addCameraInput()
         self.addVideoOutput()
-        
-        self.viewController.view.layer.addSublayer(self.previewLayer)
-        
+
+        let viewCont = UIViewController()
+        viewCont.view.backgroundColor = .black
+        viewCont.view.frame = screenSize
+        viewCont.title = "Card Scanner"
+        viewCont.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(self.doneButton(_:)))
+        self.nagivationCont = UINavigationController(rootViewController: viewCont)
+        self.nagivationCont.modalPresentationStyle = .fullScreen
+        viewController.present(self.nagivationCont, animated: true, completion: nil)
+    
+        viewCont.view.layer.addSublayer(self.previewLayer)
+
         self.disQueue.async {
             self.captureSession!.startRunning()
         }
     }
-    
+
     private func addCameraInput() {
         let device = AVCaptureDevice.default(for: .video)!
         let cameraInput = try! AVCaptureDeviceInput(device: device)
@@ -161,7 +340,7 @@ class CCScanner: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
             let theimage : UIImage = self.convert(cmage: ciimage)
             
             self.image = theimage
-            processImage()
+            self.processImage()
         }
     }
     
@@ -188,25 +367,30 @@ class CCScanner: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         }
     }
     
-    private func closeCapture()
-    {
+    private func callDelegate() {
         self.delegate?.ccScannerCompleted(cardNumber: self.finalCardNumber,
                                           expDate: self.finalExpDate,
-                                          cardType: self.finalCardType)
-        
+                                          cardType: self.foundType?.rawValue ?? "error")
+        self.closeCapture()
+    }
+    
+    @objc func doneButton(_ sender: UIBarButtonItem) {
+        self.closeCapture()
+    }
+    
+    private func closeCapture()
+    {
         self.finalCardNumber = ""
         self.finalExpDate = ""
         self.finalName = ""
-        self.finalCardType = ""
         self.processing = false
         self.findExp = false
         self.cardExpPass = 0
         self.cardNumberDict = [String:Int]()
         self.cardExpDict = [String:Int]()
-        self.textDetectionRequest.minimumTextHeight = 0.02
+        self.textDetectionRequest.minimumTextHeight = 0.020
         self.disQueue.async {
             self.captureSession!.stopRunning()
-            
             if let inputs = self.captureSession!.inputs as? [AVCaptureDeviceInput] {
                 for input in inputs {
                     self.captureSession!.removeInput(input)
@@ -215,6 +399,7 @@ class CCScanner: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         }
         DispatchQueue.main.async {
             self.previewLayer.removeFromSuperlayer()
+            self.nagivationCont.dismiss(animated: true, completion: nil)
         }
     }
     
@@ -242,24 +427,32 @@ class CCScanner: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
                 self.recognizedText += " "
             }
             
-            let cleanedText = self.cleanText(originalText: self.recognizedText)
+            var cleanedText = self.cleanText(originalText: self.recognizedText)
             
             if self.findExp && self.cardExpPass < 7 {
                 findExpDate(fullText: self.recognizedText)
             }
             else if self.findExp {
                 print("NO EXP DATE FOUND")
-                self.closeCapture()
+                self.callDelegate()
             }
             else
             {
-                for card in self.allCardTypes {
-                    
-                    let start = Int(Array(card.keys)[0])!
-                    let length = Int(Array(card.values)[0])!
-                    
-                    if self.findCC(fullText: cleanedText, startingNum: start, lengthOfCard: length) {
-                        break
+                cleanedText = cleanedText.filter("0123456789".contains)
+                
+                verify: for (type, details) in self.usedCards {
+                    for cardRange in details {
+                        let cardNums = self.getCardDict(stringRange: cardRange.key)
+                        let cardLengths = self.getCardDict(stringRange: cardRange.value)
+                        
+                        for num in cardNums {
+                            for len in cardLengths {
+                                if self.findCC(fullText: cleanedText, startingNum: Int(num)!, lengthOfCard: Int(len)!) {
+                                    self.foundType = type
+                                    break verify
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -325,7 +518,7 @@ class CCScanner: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
             {
                 //print("EXP DATE: ", finalDate)
                 self.finalExpDate = finalDate
-                self.closeCapture()
+                self.callDelegate()
             }
         }
         
@@ -336,11 +529,10 @@ class CCScanner: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     
     private func findCC(fullText: String, startingNum: Int, lengthOfCard: Int) -> Bool
     {
-        let result = fullText.filter("0123456789".contains)
-        if let numIndex = result.indexInt(of: Character(UnicodeScalar(startingNum)!)) {
-            let cardCheck = result[numIndex...]
+        if let numIndex = fullText.index(of: String(startingNum)) {
+            let cardCheck = fullText[numIndex...]
             if cardCheck.count > lengthOfCard - 1 {
-                return self.processCC(cardNumber: cardCheck)
+                return self.processCC(cardNumber: String(cardCheck))
             } else {
                 return false
             }
@@ -431,5 +623,29 @@ extension String {
     subscript(_ range: CountablePartialRangeFrom<Int>) -> String {
         let start = index(startIndex, offsetBy: max(0, range.lowerBound))
         return String(self[start...])
+    }
+}
+
+extension StringProtocol {
+    func index<S: StringProtocol>(of string: S, options: String.CompareOptions = []) -> Index? {
+        range(of: string, options: options)?.lowerBound
+    }
+    func endIndex<S: StringProtocol>(of string: S, options: String.CompareOptions = []) -> Index? {
+        range(of: string, options: options)?.upperBound
+    }
+    func indices<S: StringProtocol>(of string: S, options: String.CompareOptions = []) -> [Index] {
+        ranges(of: string, options: options).map(\.lowerBound)
+    }
+    func ranges<S: StringProtocol>(of string: S, options: String.CompareOptions = []) -> [Range<Index>] {
+        var result: [Range<Index>] = []
+        var startIndex = self.startIndex
+        while startIndex < endIndex,
+            let range = self[startIndex...]
+                .range(of: string, options: options) {
+                result.append(range)
+                startIndex = range.lowerBound < range.upperBound ? range.upperBound :
+                    index(range.lowerBound, offsetBy: 1, limitedBy: endIndex) ?? endIndex
+        }
+        return result
     }
 }
