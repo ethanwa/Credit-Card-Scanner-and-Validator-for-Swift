@@ -28,7 +28,10 @@ import Vision
 import Photos
 import AVFoundation
 
+/** Defines an interface for delegates of CCScannerDelegate to receive a valid credit card number, expiration date, and card type from a visible scan using the devices camera. */
 protocol CCScannerDelegate: UIViewController {
+    
+    /** Called whenever a CCScannerDelegate instance validates a credit card number from a visual scan. */
     func ccScannerCompleted(cardNumber: String, expDate: String, cardType: String)
 }
 
@@ -36,7 +39,11 @@ class CCScanner: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate 
     
     var delegate: CCScannerDelegate?
     var createCardType = Card()
+    
+    /** A list of the card types to check a visual scan of a card against. Default is all. */
     var cards = [CardType.all]
+    
+    /** The recognition level selects which techniques will be used during the text recognition. There are trade-offs between performance and accuracy. Default is normal.*/
     var recognitionLevel: RecognitionLevel?
     
     private let cardTypes = [
@@ -67,27 +74,21 @@ class CCScanner: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate 
         CardType.dinersClubInternational:
             ["36" : "14-19"],
         
-        
         // TODO: Missing UkrCard
+        // 60400100 - 60420099 range is too large. 604 conflicts with RuPay.
+        // Maybe enforce some search ordering.
+
+        CardType.ruPay: ["60" : "15",
+                         "6521-6522" : "16"],
         
-        // TODO: RuPay
-        /*
-         "60" : "15",
-         "6521-6522" : "16",
-         */
-        
-        // InterPayment
         CardType.interPayment: ["636" : "16-19"],
         
-        // JCB
         CardType.jcb: ["3528-3589" : "16-19"],
         
-        // Maestro UK
         CardType.maestroUK: ["6759" : "16-19",
                                "676770" : "12-19",
                                "676774" : "12-19"],
         
-        // Maestro
         CardType.maestro: ["5018" : "12-19",
                              "5020" : "12-19",
                              "5038" : "12-19",
@@ -98,19 +99,16 @@ class CCScanner: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate 
                              "6762" : "12-19",
                              "6763" : "12-19"],
         
-        // Dankort
         CardType.dankort: ["5019" : "16"],
         
-        // MIR
         CardType.mir: ["2200-2204" : "16"],
         
-        // NPS Pridnestrovie
         CardType.npsPridnestrovie: ["6054740-6054744" : "16"],
         
         // TODO: Troy
-        // "6-9" : "16",
+        // CardType.troy: ["6-9" : "16],
+        // Range is WAY too big to be included in .all
         
-        // UTAP
         CardType.utap: ["1" : "15"]
         
         // UNKNOWN VALIDATION
@@ -129,7 +127,7 @@ class CCScanner: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate 
         case chinaUnionPay = "China Union Pay"
         case dinersClubInternational = "Diners Club International"
         //case ukrCard = "UkrCard"
-        //case ruPay = "RuPay"
+        case ruPay = "RuPay"
         case interPayment = "Interpayment"
         case jcb = "JCB"
         case maestroUK = "Maestro UK"
@@ -154,6 +152,7 @@ class CCScanner: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate 
         var binRange = ""
         var lengthRange = ""
         
+        /** Returns a custom Card by setting a custom BIN range and card number length. */
         mutating func new(binRange: String, lengthRange: String) -> Card {
             self.binRange = binRange
             self.lengthRange = lengthRange
@@ -185,6 +184,7 @@ class CCScanner: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate 
     
     // MARK: - Card() Setup
     
+    /** Add custom Cards to run a visual check against in a scan. */
     func addCustomCards(cards: Array<Card>) {
         for card in cards {
             self.customCards[card.binRange] = card.lengthRange
