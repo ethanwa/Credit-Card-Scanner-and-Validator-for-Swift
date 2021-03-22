@@ -49,7 +49,7 @@ I don't have an app to use this code in personally, but I was intrigued to see i
 
 ## Optional Settings
 
-* `self.ccScanner.recognitionLevel = .normal` is default. You can increase speed or accurancy with:
+* `self.ccScanner.recognitionLevel = .normal`. You can increase speed or accurancy with the following settings:
 
 ```
 .fastest
@@ -59,28 +59,47 @@ I don't have an app to use this code in personally, but I was intrigued to see i
 .veryaccurate
 ```
 
-* `self.ccScanner.cards = [.all]` is default. You can only allow certain cards for your business. For example, if you are in the USA and only accept Visa and Mastercard, the code would look like `self.ccScanner.cards = [.visa, .mastercard]`. Here are all of the avaiable card options:
+* `self.ccScanner.cards = [.all]`. You can allow only certain cards for your business if you'd like. For example, if you are in the USA and only accept Visa and Mastercard, the code would look like `self.ccScanner.cards = [.visa, .mastercard]`. Here are all of the avaiable card options:
 
 ```
 .all (default)
 .noneExceptCustom
-.visa // Visa
-.mastercard // Mastercard
-.americanExpress // American Express
-.discover // Discover
-.chinaTUnion // China T-Union
-.chinaUnionPay // China Union Pay
-.dinersClubInternational // Diners Club International
-.interPayment // Interpayment
-.jcb // JCB
-.maestroUK // Maestro UK
-.maestro // Maestro
-.dankort // Dankort
-.mir // MIR
-.npsPridnestrovie // NPS Pridnestrovie
-.troy // Troy
-.utap // UTAP
-.custom // Custom Card (see below)
+.visa                     // Visa
+.mastercard               // Mastercard
+.americanExpress          // American Express
+.discover                 // Discover
+.chinaTUnion              // China T-Union
+.chinaUnionPay            // China Union Pay
+.dinersClubInternational  // Diners Club International
+.interPayment             // Interpayment
+.jcb                      // JCB
+.maestroUK                // Maestro UK
+.maestro                  // Maestro
+.dankort                  // Dankort
+.mir                      // MIR
+.npsPridnestrovie         // NPS Pridnestrovie
+.troy                     // Troy
+.utap                     // UTAP
+.custom                   // Custom Card (see below)
+```
+
+* You can also add custom cards. For example, if you're Target and you want to add Red Card Debit scanning, you'd simply add the following code. The `binRange` variable is the first six digits of your card (called a IIN or BIN, see [Wikipedia])(https://en.wikipedia.org/wiki/Payment_card_number). You can use anywhere between one and six sigits. The `lengthRange` variable is for card number length. **Note:** All custom card numbering schemes must follow the [Luhn algorithm](https://en.wikipedia.org/wiki/Luhn_algorithm).
+
+```
+let targetCard = self.ccScanner.createCardType.new(binRange: "639463", lengthRange: "16")
+self.ccScanner.addCustomCards(cards: [targetCard])
+```
+
+Both of these variables can be set in ranges, like this: 
+
+```
+let targetCardRangeOne = self.ccScanner.createCardType.new(binRange: "639463-639465", lengthRange: "16-19")
+```
+
+You can add as many custom cards, or as many various ranges, as you wish: 
+
+```
+self.ccScanner.addCustomCards(cards: [targetCard, oldNavyStoreCard])
 ```
 
 ## Current Known Limitations, Issues, and Extra Details
