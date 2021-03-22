@@ -11,7 +11,7 @@ This is an early 1.0 alpha version.
 
 ## How to Use
 
-It's very simple to use. Add the `CCScannerDelegate` to your UIViewController, initialize the CCScanner class, set the delegate, and start the scanner. The delegate method will be called returning you the card information. 
+It's very simple to use. Add the `CCScannerDelegate` to your `UIViewController`, initialize the `CCScanner` class, set the delegate, and start the scanner. The delegate method will be called returning you the card information. 
 
 Here's an extremely easy example to follow:
 
