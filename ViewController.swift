@@ -26,10 +26,6 @@ import UIKit
 
 class ViewController: UIViewController, CCScannerDelegate {
     
-    @IBOutlet var lblCardNumber: UILabel!
-    @IBOutlet var lblCardExp: UILabel!
-    @IBOutlet var lblCardType: UILabel!
-    
     // Initialize the CC scanner
     let ccScanner = CCScanner()
     
@@ -43,6 +39,7 @@ class ViewController: UIViewController, CCScannerDelegate {
     @IBAction func startButton() {
         
         // OPTIONAL: You can add custom cards for your company. Here is an example for Target
+        /*
         let targetCard = self.ccScanner.createCardType.new(binRange: "639463",
                                                            lengthRange: "16")
         
@@ -50,15 +47,18 @@ class ViewController: UIViewController, CCScannerDelegate {
                                                            lengthRange: "16")
         
         self.ccScanner.addCustomCards(cards: [targetCard, amazonCard])
+        */
         
         // OPTIONAL: The more you narrow down your search, the faster you'll get results. Default is .all
+        /*
         self.ccScanner.cards = [.visa,
                                 .mastercard,
                                 .americanExpress,
                                 .custom]
+        */
         
         // OPTIONAL: Choose between accuracy and speed
-        self.ccScanner.recognitionLevel = .normal
+        //self.ccScanner.recognitionLevel = .fast
         
         // Start the CC scanner
         self.ccScanner.startScanner(viewController: self)
@@ -67,12 +67,8 @@ class ViewController: UIViewController, CCScannerDelegate {
     // This delegate callback function is called upon a completed successful scan
     func ccScannerCompleted(cardNumber: String, expDate: String, cardType: String) {
         
-        // Do what you wish with the data. UI changes need to be on the main thread
-        DispatchQueue.main.async {
-            self.lblCardNumber.text = cardNumber
-            self.lblCardExp.text = expDate
-            self.lblCardType.text = cardType
-        }
+        // Do what you wish with the data.
+        print(cardNumber, expDate, cardType)
     }
 }
 
