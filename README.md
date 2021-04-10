@@ -7,8 +7,6 @@ Requires iOS 13 or above.
 
 Uses the iOS Vision text recognizer framework to visually read credit and debit card numbers and expiration dates. During the recognition process, it uses the Luhn algorithm to make sure the CC number is valid. It also checks agains a list of prefix numbers to determine card type (Mastercard, Visa, Discover, Amex, etc).
 
-This is an early 1.0 alpha version.
-
 ## How to Use
 
 It's very simple to use. Add the `CCScannerDelegate` to your `UIViewController`, initialize the `CCScanner` class, set the delegate, and start the scanner. The delegate method will be called returning you the card information. 
@@ -112,6 +110,6 @@ self.ccScanner.addCustomCards(cards: [targetCard, oldNavyStoreCard])
 
 * This code will not pull the name off of the card yet.
 
-* This code will not pull the CVV off of the card yet.
+* This code will not pull the CCV off of the card yet.
 
 * There are some no-no's I do in the code that I hacked in just to get things up and running as quick as possible, the major one being I force cast a lot. This is just clean-up that needs to be done. The code should run fine without crashing though... I hope.
